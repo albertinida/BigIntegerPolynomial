@@ -12,7 +12,8 @@ import java.util.concurrent.Executors;
 public class test {
 
 	private final static int avgContacts = 130;
-	private static ExecutorService executor = Executors.newFixedThreadPool(10);
+//	private static ExecutorService executor = Executors.newFixedThreadPool(10);
+	private static ExecutorService executor = Executors.newCachedThreadPool();
 
 	
 	public static void main(String[] args) throws Exception {
@@ -29,45 +30,44 @@ public class test {
 			
 			poly2.setCoefficient(new BigInteger(64, new Random()), 0);	
 			//poly1.multiply(poly2);
-			//poly1.convMultiply(poly2);
+			//poly1.convolution(poly2);
 			poly1.threadedConvolution(poly2, executor);
 		}
 		Calendar stop = Calendar.getInstance();
-		System.out.println("Costruzione di un polinomio con grado "+poly1.degree()+": "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
+		System.out.print("Grado :"+poly1.degree()+"\t\tCostruzione: "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
 		
 		start = Calendar.getInstance();
-		poly1.evaluate(new BigInteger(64, new Random()));
+		//poly1.evaluate(new BigInteger(64, new Random()));
+		poly1.hornerEvaluate(new BigInteger(64, new Random()));
 		stop = Calendar.getInstance();
-		System.out.println("Valutazione del polinomio : "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
+		System.out.println("\t\tValutazione: "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
 
-		for (;;) {
-			poly2.setCoefficients(poly1.getCoefficients());
-			
-			start = Calendar.getInstance();
-			
-			for (int i=0; i<avgContacts; i++) {
-				Calendar innerStart = Calendar.getInstance();
-				System.out.print(Calendar.getInstance().getTimeInMillis()+" sto moltiplicando un poly di grado "+poly1.degree()+" per un poly di grado "+poly2.degree());
-				//poly1.multiply(poly2);
-				//poly1.convMultiply(poly2);
-				poly1.threadedConvolution(poly2, executor);
-				Calendar innerStop = Calendar.getInstance();
-				System.out.println("\t"+(innerStop.getTimeInMillis()-innerStart.getTimeInMillis())+"ms");
-				System.gc();
-				innerStart = Calendar.getInstance();
-				poly1.evaluate(new BigInteger(64, new Random()));
-				innerStop = Calendar.getInstance();
-				System.out.println("\t\t Valutazione: "+(innerStop.getTimeInMillis()-innerStart.getTimeInMillis())+"ms");
-				
-			}
-			stop = Calendar.getInstance();
-			System.out.println("Costruzione di un polinomio con grado "+poly2.degree()+": "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
-			
-			start = Calendar.getInstance();
-			poly1.evaluate(new BigInteger(64, new Random()));
-			stop = Calendar.getInstance();
-			System.out.println("Valutazione del polinomio : "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
-		}
+		System.out.println();
+		System.out.println();
+		System.out.println("COSTRUZIONE PER MOLTIPLICAZIONI SUCCESSIVE");
+		System.out.println();
 		
+		
+
+		poly2.setCoefficients(poly1.getCoefficients());
+		for (;;) {
+			
+			// MOLTIPLICAZIONE
+			start = Calendar.getInstance();
+			//poly1.multiply(poly2);
+			//poly1.convolution(poly2);
+			poly1.threadedConvolution(poly2, executor);
+			stop = Calendar.getInstance();
+			System.out.print("Grado :"+poly1.degree()+"\t\tCostruzione: "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
+			System.gc();
+			
+			// VALUTAZIONE
+			start = Calendar.getInstance();
+			//poly1.evaluate(new BigInteger(64, new Random()));
+			poly1.hornerEvaluate(new BigInteger(64, new Random()));
+			stop = Calendar.getInstance();
+			System.out.println("\t\tValutazione: "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
+			
+		}
 	}
 }

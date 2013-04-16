@@ -32,16 +32,11 @@ public class Polynomial {
 		return coefficients.size()-1;
 	}
 	
-	public BigInteger getCoefficient(int degree) throws NegativeDegreeException, ExcessiveDegreeException {
-		if (degree < 0) throw new NegativeDegreeException();
-		if (degree > this.degree()) throw new ExcessiveDegreeException();
+	public BigInteger getCoefficient(int degree) {
 		return coefficients.get(this.degree()-degree);
 	}
 	
-	public void setCoefficient(BigInteger coefficient, int degree) throws NegativeDegreeException, ExcessiveDegreeException {
-		if (degree < 0) throw new NegativeDegreeException();
-		if (degree > this.degree()) throw new ExcessiveDegreeException();
-		
+	public void setCoefficient(BigInteger coefficient, int degree) {
 		coefficients.set(this.degree()-degree, coefficient);
 	}
 	
@@ -54,23 +49,27 @@ public class Polynomial {
 	}
 	
 	public BigInteger evaluate(BigInteger value) {
-		// TODO try to find a quicker way
-		BigInteger evaluation = new BigInteger("0");
 
-		try {
-			for (int i=0; i<=this.degree(); i++) {
-				BigInteger coefficient = this.getCoefficient(i);
-				evaluation = evaluation.add(coefficient.multiply(value.pow(i)));
-			}
-		} catch (NegativeDegreeException e) {
-			// This should never happen
-			e.printStackTrace();
-		} catch (ExcessiveDegreeException e) {
-			// This should never happen
-			e.printStackTrace();			
+		BigInteger evaluation = new BigInteger("0");
+		BigInteger power = new BigInteger("1");
+
+		for (int i=0; i<=this.degree(); i++) {
+			power = power.multiply(value);
+			evaluation = evaluation.add(this.getCoefficient(i).multiply(value.pow(i)));
 		}
 		
 		return evaluation;
+	}
+	
+	public BigInteger hornerEvaluate(BigInteger value) {
+		
+		BigInteger evaluation = new BigInteger("0");
+		
+		for (int i=0; i<this.coefficients.size(); i++) {
+			evaluation = (evaluation.multiply(value)).add(this.getCoefficientByIndex(i));
+		}
+	
+		return evaluation;	
 	}
 	
 	public Polynomial multiply(Polynomial polynomial) throws NegativeDegreeException, ExcessiveDegreeException {
@@ -97,7 +96,7 @@ public class Polynomial {
 	}
 
 	
-	public Polynomial convMultiply(Polynomial polynomial) throws NegativeDegreeException, ExcessiveDegreeException {
+	public Polynomial convolution(Polynomial polynomial) throws NegativeDegreeException, ExcessiveDegreeException {
 		
 		List<BigInteger> coefficients = new LinkedList<BigInteger>();
 		int m = this.degree();
