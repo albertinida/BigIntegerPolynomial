@@ -5,11 +5,15 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class test {
 
 	private final static int avgContacts = 130;
+	private static ExecutorService executor = Executors.newFixedThreadPool(10);
+
 	
 	public static void main(String[] args) throws Exception {
 
@@ -25,7 +29,8 @@ public class test {
 			
 			poly2.setCoefficient(new BigInteger(64, new Random()), 0);	
 			//poly1.multiply(poly2);
-			poly1.convMultiply(poly2);
+			//poly1.convMultiply(poly2);
+			poly1.threadedConvolution(poly2, executor);
 		}
 		Calendar stop = Calendar.getInstance();
 		System.out.println("Costruzione di un polinomio con grado "+poly1.degree()+": "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
@@ -44,7 +49,8 @@ public class test {
 				Calendar innerStart = Calendar.getInstance();
 				System.out.print(Calendar.getInstance().getTimeInMillis()+" sto moltiplicando un poly di grado "+poly1.degree()+" per un poly di grado "+poly2.degree());
 				//poly1.multiply(poly2);
-				poly1.convMultiply(poly2);
+				//poly1.convMultiply(poly2);
+				poly1.threadedConvolution(poly2, executor);
 				Calendar innerStop = Calendar.getInstance();
 				System.out.println("\t"+(innerStop.getTimeInMillis()-innerStart.getTimeInMillis())+"ms");
 				System.gc();

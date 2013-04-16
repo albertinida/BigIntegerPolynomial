@@ -1,8 +1,15 @@
 package it.uninsubria.dista.BigInteger.Polynomials;
 
 import java.math.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 public class Polynomial {
 
@@ -38,7 +45,16 @@ public class Polynomial {
 		coefficients.set(this.degree()-degree, coefficient);
 	}
 	
+	public BigInteger getCoefficientByIndex(int index) {
+		return this.coefficients.get(index);
+	}
+	
+	public void setCoefficientByIndex(BigInteger coefficient, int index) {
+		this.coefficients.set(index, coefficient);
+	}
+	
 	public BigInteger evaluate(BigInteger value) {
+		// TODO try to find a quicker way
 		BigInteger evaluation = new BigInteger("0");
 
 		try {
@@ -95,24 +111,40 @@ public class Polynomial {
 		// Implementation of the convolution function
 		for (int i=0; i<=w; i++) {
 			for (int j=Math.max(0, i-n); j<=Math.min(i, m); j++) {
-/*				BigInteger a = this.coefficients.get(j);
-				BigInteger b = polynomial.coefficients.get(i-j);
-				BigInteger c = a.multiply(b);
-				BigInteger d = result.coefficients.get(i);
-				
-				result.coefficients.set(i, d.add(c));
-*/				result.coefficients.set(i, result.coefficients.get(i).add( this.coefficients.get(j).multiply(polynomial.coefficients.get(i-j)) ));
+				result.coefficients.set(i, result.coefficients.get(i).add( this.coefficients.get(j).multiply(polynomial.coefficients.get(i-j)) ));
 			}
 		}
-		
-		
 			
 		this.coefficients.clear();
 		this.coefficients = result.getCoefficients();
 		
 		return this;
+	}
+	
+	public Polynomial threadedConvolution(Polynomial polynomial, ExecutorService executor) throws InterruptedException, ExecutionException {
 
+		List<BigInteger> coefficients = new LinkedList<BigInteger>();
+		int m = this.degree();
+		int n = polynomial.degree();
+		int w = (m+n);
+		for (int i=0; i<=w; i++) 
+			coefficients.add(new BigInteger("0"));
 		
+		Polynomial result = new Polynomial(coefficients);
+		ArrayList<Future<BigInteger>> threads = new ArrayList<Future<BigInteger>>();
+		
+		for (int i=0; i<=w; i++) {
+			threads.add(executor.submit(new ConvolutionThread(this, polynomial, i)));
+		}
+		
+		for (int i=0; i<=w; i++) {
+			result.setCoefficientByIndex(threads.get(i).get(), i);
+		}
+		
+		this.coefficients.clear();
+		this.coefficients = result.getCoefficients();
+		
+		return result;
 	}
 	
 	public List<BigInteger> getCoefficients() {
@@ -133,37 +165,32 @@ public class Polynomial {
 	}
 }
 
+class ConvolutionThread implements Callable<BigInteger> {
 
-/*
-package it.uninsubria.dista.bignumbers.classes;
-import it.uninsubria.dista.bignumbers.exceptions.*;
-
-import java.util.List;
-import java.util.LinkedList;
-
-public class BigNumberPolynomial {
-
-	public BigNumber getCoefficient(int degree) throws NegativeDegreeException, OutOfBoundsDegreeException {
-		if (degree < 0) throw new NegativeDegreeException();
-		if (degree > this.degree()) throw new OutOfBoundsDegreeException();
-		return polynomial.get(this.degree()-degree);
+	private Polynomial poly1, poly2;
+	private int valueToCompute;
+	
+	public ConvolutionThread(Polynomial poly1, Polynomial poly2, int valueToCompute) {
+		this.poly1 = poly1;
+		this.poly2 = poly2;
+		this.valueToCompute = valueToCompute;
 	}
 	
-	public void setCoefficient(BigNumber coefficient, int degree) throws NegativeDegreeException, OutOfBoundsDegreeException {
-		if (degree < 0) throw new NegativeDegreeException();
-		if (degree > this.degree()) throw new OutOfBoundsDegreeException();
+	@Override
+	public BigInteger call() throws Exception {
+
+		int m = poly1.degree();
+		int n = poly2.degree();
+		int i = this.valueToCompute;
 		
-		polynomial.set(this.degree()-degree, coefficient);
-	}
-	
-	// TODO
-	public BigNumber evaluate(BigNumber value) {
-		BigNumber result = polynomial.get(polynomial.size()-1);
+		BigInteger result = new BigInteger("0");
 		
+		for (int j=Math.max(0, i-n); j<=Math.min(i, m); j++) {
+			result = result.add( poly1.getCoefficientByIndex(j).multiply(poly2.getCoefficientByIndex(i-j)));
+		}
+
 		return result;
 	}
 	
-
+	
 }
-
-*/
