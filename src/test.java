@@ -11,9 +11,10 @@ import java.util.concurrent.Executors;
 
 public class test {
 
-	private final static int avgContacts = 130;
-//	private static ExecutorService executor = Executors.newFixedThreadPool(10);
-	private static ExecutorService executor = Executors.newCachedThreadPool();
+	private final static int avgContacts = 150;
+	private final static BigInteger evaluate = new BigInteger("4294967296");
+	private static ExecutorService executor = Executors.newFixedThreadPool(10);
+	// private static ExecutorService executor = Executors.newCachedThreadPool();
 
 	
 	public static void main(String[] args) throws Exception {
@@ -24,6 +25,7 @@ public class test {
 		coeff.add(new BigInteger("1"));
 		coeff.add(new BigInteger("1"));
 		poly2 = new Polynomial(coeff);
+		coeff.clear();
 		
 		Calendar start = Calendar.getInstance();
 		for (int i=0; i<avgContacts; i++) { 
@@ -38,20 +40,17 @@ public class test {
 		
 		start = Calendar.getInstance();
 		//poly1.evaluate(new BigInteger(64, new Random()));
-		poly1.hornerEvaluate(new BigInteger(64, new Random()));
+		poly1.hornerEvaluate(evaluate);
 		stop = Calendar.getInstance();
 		System.out.println("\t\tValutazione: "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
 
-		System.out.println();
 		System.out.println();
 		System.out.println("COSTRUZIONE PER MOLTIPLICAZIONI SUCCESSIVE");
 		System.out.println();
 		
 		
-
 		poly2.setCoefficients(poly1.getCoefficients());
 		for (;;) {
-			
 			// MOLTIPLICAZIONE
 			start = Calendar.getInstance();
 			//poly1.multiply(poly2);
@@ -59,15 +58,13 @@ public class test {
 			poly1.threadedConvolution(poly2, executor);
 			stop = Calendar.getInstance();
 			System.out.print("Grado :"+poly1.degree()+"\t\tCostruzione: "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
-			System.gc();
 			
 			// VALUTAZIONE
 			start = Calendar.getInstance();
 			//poly1.evaluate(new BigInteger(64, new Random()));
-			poly1.hornerEvaluate(new BigInteger(64, new Random()));
+			poly1.hornerEvaluate(evaluate);
 			stop = Calendar.getInstance();
 			System.out.println("\t\tValutazione: "+(stop.getTimeInMillis()-start.getTimeInMillis())+"ms");
-			
 		}
 	}
 }
