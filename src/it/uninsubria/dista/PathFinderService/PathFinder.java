@@ -52,6 +52,7 @@ public class PathFinder {
 		}
 		
 /**/	long insertTime = System.currentTimeMillis();
+/**/	long totalTime = System.currentTimeMillis();
 		boolean[] nextLevelUpdated = new boolean[table.size()+1];
 		Arrays.fill(nextLevelUpdated, false);
 
@@ -117,6 +118,9 @@ public class PathFinder {
 			testPFS.output.write("\tcicli: "+cycle+", valutazioni: "+eval+" moltiplicazioni: "+conv+"\n");
 			testPFS.output.flush();
 		}
+/**/	System.out.println("\ttempo richiesto dall'aggiornamento: "+(System.currentTimeMillis()-totalTime)+"ms");
+		testPFS.output.write("\ttempo richiesto dall'aggiornamento: "+(System.currentTimeMillis()-totalTime)+"ms");
+		testPFS.output.flush();
 	}
 	
 	@Override

@@ -43,7 +43,7 @@ public class UserData {
 				try {
 					System.out.println("Occurred Exception "+e.getClass());
 					testPFS.output.write("Occurred Exception "+e.getClass()+"\n");
-					Thread.sleep(1000);
+					Thread.sleep(500);
 				} catch (Exception sleep) {
 				}
 			}
@@ -76,7 +76,7 @@ public class UserData {
 				try {
 					System.out.println("Occurred Exception "+e.getClass());
 					testPFS.output.write("Occurred Exception "+e.getClass()+"\n");
-					Thread.sleep(1000);
+					Thread.sleep(500);
 				} catch (Exception sleep) {
 				}
 			}
@@ -101,7 +101,7 @@ public class UserData {
 				try {
 					System.out.println("Occurred Exception "+e.getClass());
 					testPFS.output.write("Occurred Exception "+e.getClass()+"\n");
-					Thread.sleep(1000);
+					Thread.sleep(500);
 				} catch (Exception sleep) {
 				}
 			}
