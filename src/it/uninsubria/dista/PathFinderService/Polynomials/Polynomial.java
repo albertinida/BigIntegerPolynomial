@@ -33,6 +33,13 @@ public class Polynomial {
 		this.coefficients.add(monomial);
 	}
 	
+	public Polynomial(String polynomial) {
+		this.coefficients = new LinkedList<BigInteger>();
+		for (String coefficient : polynomial.split(" ")) {
+			coefficients.add(new BigInteger(coefficient));
+		}
+	}
+	
 	public int degree() {
 		return coefficients.size()-1;
 	}
@@ -169,7 +176,7 @@ public class Polynomial {
 		for (BigInteger coeff : coefficients) {
 			output += coeff.toString()+" ";
 		}
-		return "[ "+output+"]";
+		return output;
 	}
 }
 
