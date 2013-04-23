@@ -1,7 +1,9 @@
 package it.uninsubria.dista.PathFinderService.Polynomials;
 
+import it.uninsubria.dista.BloomFilters.BloomFilter;
 import it.uninsubria.dista.PathFinderService.Exceptions.ExcessiveDegreeException;
 import it.uninsubria.dista.PathFinderService.Exceptions.NegativeDegreeException;
+import it.uninsubria.dista.PathFinderService.Exceptions.UnsupportedIntersectionOperation;
 
 import java.math.*;
 import java.util.ArrayList;
@@ -12,25 +14,37 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-public class Polynomial {
+public class BloomFilteredPolynomial {
 
 	private List<BigInteger> coefficients;
+	private BloomFilter<BigInteger> bloomFilter;
 	
-	public Polynomial() {
+	public BloomFilteredPolynomial() {
 		this.coefficients = new LinkedList<BigInteger>();
+		this.bloomFilter = new BloomFilter<BigInteger>(0.001, 1000);
 	}
 	
-	public Polynomial(Polynomial polynomial) {
+	public BloomFilteredPolynomial(BloomFilteredPolynomial polynomial) {
 		this.coefficients = new LinkedList<BigInteger>(polynomial.getCoefficients());
+		
+		this.bloomFilter = polynomial.getBloomFilter();
 	}
 	
-	public Polynomial(List<BigInteger> coefficients) {
-		this.coefficients = new LinkedList<BigInteger>(coefficients);
+	public BloomFilteredPolynomial(int length) {
+		this.coefficients = new LinkedList<BigInteger>();
+		for (int i=0; i<length; i++) 
+			coefficients.add(new BigInteger("0"));
+
+		this.bloomFilter = new BloomFilter<BigInteger>(0,001, 1000);
+
 	}
 	
-	public Polynomial(BigInteger monomial) {
+	public BloomFilteredPolynomial(BigInteger monomial) {
 		this.coefficients = new LinkedList<BigInteger>();
 		this.coefficients.add(monomial);
+		
+		this.bloomFilter = new BloomFilter<BigInteger>(0,001, 1000);
+		this.bloomFilter.add(monomial);
 	}
 	
 	public int degree() {
@@ -51,6 +65,14 @@ public class Polynomial {
 	
 	public void setCoefficientByIndex(BigInteger coefficient, int index) {
 		this.coefficients.set(index, coefficient);
+	}
+	
+	public BloomFilter<BigInteger> getBloomFilter() {
+		return this.bloomFilter;
+	}
+	
+	public boolean bloomFilterContains(BigInteger value) {
+		return this.bloomFilter.contains(value);
 	}
 	
 	public BigInteger evaluate(BigInteger value) {
@@ -76,73 +98,29 @@ public class Polynomial {
 	
 		return evaluation;	
 	}
-	
-	public Polynomial multiply(Polynomial polynomial) throws NegativeDegreeException, ExcessiveDegreeException {
-	
-		List<BigInteger> coefficients = new LinkedList<BigInteger>();
-		int m = this.degree();
-		int n = polynomial.degree();
-		for (int i=0; i<=(m+n); i++) 
-			coefficients.add(new BigInteger("0"));
-		
-		Polynomial result = new Polynomial(coefficients);
-		
-		for (int i=0; i<=m; i++)
-			for (int j=0; j<=n; j++) {
-				BigInteger oldCoefficient = result.getCoefficient(i+j);
-				BigInteger addValue = this.getCoefficient(i).multiply(polynomial.getCoefficient(j));
-				result.setCoefficient(oldCoefficient.add(addValue), i+j);
-			}
-			
-		this.coefficients.clear();
-		this.coefficients = result.getCoefficients();
-		
-		return this;
-	}
 
-	
-	public Polynomial convolution(Polynomial polynomial) throws NegativeDegreeException, ExcessiveDegreeException {
-		
-		List<BigInteger> coefficients = new LinkedList<BigInteger>();
+	public BloomFilteredPolynomial threadedConvolution(BloomFilteredPolynomial polynomial, ExecutorService executor) throws InterruptedException, ExecutionException {
+
 		int m = this.degree();
 		int n = polynomial.degree();
 		int w = (m+n);
-		for (int i=0; i<=w; i++) 
-			coefficients.add(new BigInteger("0"));
 		
-		Polynomial result = new Polynomial(coefficients);
-		
-		// Implementation of the convolution function
-		for (int i=0; i<=w; i++) {
-			for (int j=Math.max(0, i-n); j<=Math.min(i, m); j++) {
-				result.coefficients.set(i, result.coefficients.get(i).add( this.coefficients.get(j).multiply(polynomial.coefficients.get(i-j)) ));
-			}
-		}
-			
-		this.coefficients.clear();
-		this.coefficients = result.getCoefficients();
-		
-		return this;
-	}
-	
-	public Polynomial threadedConvolution(Polynomial polynomial, ExecutorService executor) throws InterruptedException, ExecutionException {
-
-		List<BigInteger> coefficients = new LinkedList<BigInteger>();
-		int m = this.degree();
-		int n = polynomial.degree();
-		int w = (m+n);
-		for (int i=0; i<=w; i++) 
-			coefficients.add(new BigInteger("0"));
-		
-		Polynomial result = new Polynomial(coefficients);
+		BloomFilteredPolynomial result = new BloomFilteredPolynomial(w+1);
 		ArrayList<Future<BigInteger>> threads = new ArrayList<Future<BigInteger>>();
 		
 		for (int i=0; i<=w; i++) {
-			threads.add(executor.submit(new ConvolutionThread(this, polynomial, i)));
+			threads.add(executor.submit(new BloomFilteredConvolutionThread(this, polynomial, i)));
 		}
 		
 		for (int i=0; i<=w; i++) {
 			result.setCoefficientByIndex(threads.get(i).get(), i);
+		}
+		try {
+			this.bloomFilter.intersect(polynomial.bloomFilter);
+		} catch (UnsupportedIntersectionOperation e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(1);
 		}
 		
 		this.coefficients.clear();
@@ -173,12 +151,12 @@ public class Polynomial {
 	}
 }
 
-class ConvolutionThread implements Callable<BigInteger> {
+class BloomFilteredConvolutionThread implements Callable<BigInteger> {
 
-	private Polynomial poly1, poly2;
+	private BloomFilteredPolynomial poly1, poly2;
 	private int valueToCompute;
 	
-	public ConvolutionThread(Polynomial poly1, Polynomial poly2, int valueToCompute) {
+	public BloomFilteredConvolutionThread(BloomFilteredPolynomial poly1, BloomFilteredPolynomial poly2, int valueToCompute) {
 		this.poly1 = poly1;
 		this.poly2 = poly2;
 		this.valueToCompute = valueToCompute;

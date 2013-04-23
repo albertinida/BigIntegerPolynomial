@@ -1,6 +1,7 @@
 package it.uninsubria.dista.PathFinderService;
 
 import it.uninsubria.dista.PathFinderService.Exceptions.MalformedPolynomialException;
+import it.uninsubria.dista.PathFinderService.Polynomials.BloomFilteredPolynomial;
 import it.uninsubria.dista.PathFinderService.Polynomials.Polynomial;
 
 import java.math.BigInteger;
@@ -10,17 +11,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class PathFinder {
+public class BloomFilteredPathFinder {
 
 	private final ExecutorService executor = Executors.newFixedThreadPool(10);
 	
-	private ArrayList<UserData> table = new ArrayList<UserData>();
+	private ArrayList<BloomFilteredUserData> table = new ArrayList<BloomFilteredUserData>();
 	
-	private static PathFinder singleton = null;
+	private static BloomFilteredPathFinder singleton = null;
 	
-	public static PathFinder getInstance() {
+	public static BloomFilteredPathFinder getInstance() {
 		if (singleton == null) {
-			singleton = new PathFinder();
+			singleton = new BloomFilteredPathFinder();
 		}
 		return singleton;
 	}
@@ -29,7 +30,7 @@ public class PathFinder {
 		return this.executor;
 	}
 	
-	public void addUserData(UserData ud) throws InterruptedException, ExecutionException {
+	public void addUserData(BloomFilteredUserData ud) throws InterruptedException, ExecutionException {
 		
 /**/	System.out.println();
 /**/	System.out.println("Inserimento dell'utente "+ud.getUserId()+". Inserimento numero "+table.size());
@@ -46,33 +47,31 @@ public class PathFinder {
 		
 /**/	long insertTime = System.currentTimeMillis();
 		boolean[] nextLevelUpdated = new boolean[table.size()+1];
-/**/	int evaluations = 0;		
 		for (int i=0; i<table.size(); i++) {
-			if (table.get(i).getPolynomial(0).evaluate(ud.getUserId()).equals(BigInteger.ZERO)) {
-				evaluations++;
-				table.get(i).getPolynomial(1).threadedConvolution(ud.getPolynomial(0), executor);
-				ud.getPolynomial(1).threadedConvolution(table.get(i).getPolynomial(0), executor);
-				nextLevelUpdated[i] = true;
+			if (table.get(i).getPolynomial(0).bloomFilterContains(ud.getUserId())) {
+				if (table.get(i).getPolynomial(0).evaluate(ud.getUserId()).equals(BigInteger.ZERO)) {
+					table.get(i).getPolynomial(1).threadedConvolution(ud.getPolynomial(0), executor);
+					ud.getPolynomial(1).threadedConvolution(table.get(i).getPolynomial(0), executor);
+					nextLevelUpdated[i] = true;
+				}
 			}
 		}
 /**/	System.out.println("aggiornamento del livello 1 :"+(System.currentTimeMillis()-insertTime)+"ms");
-/**/	System.out.println("\t"+(evaluations*2)+" convoluzioni");
 		table.add(ud);
 		
 		int maxCascade = Math.min(UserData.MAX_DEPTH, table.size());
 		for (int level=1; level<maxCascade-1; level++) {
 /**/		insertTime = System.currentTimeMillis();
 			boolean[] thisLevelUpdated = nextLevelUpdated.clone();
-/**/		evaluations = 0;
+			
 			for (int i=0; i<table.size()-1; i++) {
 				if (thisLevelUpdated[i] == true) {
 					for (int j=i+1; j<table.size(); j++) {
 						
-						UserData user1 = table.get(i);
-						UserData user2 = table.get(j);
+						BloomFilteredUserData user1 = table.get(i);
+						BloomFilteredUserData user2 = table.get(j);
 						
 						if (user1.getPolynomial(level).evaluate(user2.getUserId()).equals(BigInteger.ZERO)) {
-							evaluations++;
 							user1.getPolynomial(level+1).threadedConvolution(user2.getPolynomial(level), executor);
 							user2.getPolynomial(level+1).threadedConvolution(user1.getPolynomial(level), executor);
 							
@@ -82,8 +81,7 @@ public class PathFinder {
 					}
 				}
 			}
-/**/		System.out.println("aggiornamento del livello "+(level+1)+": "+(System.currentTimeMillis()-insertTime)+"ms");
-/**/		System.out.println("\t"+(evaluations*2)+" convoluzioni");
+			System.out.println("aggiornamento del livello "+(level+1)+": "+(System.currentTimeMillis()-insertTime)+"ms");
 		}
 	}
 	
@@ -91,10 +89,10 @@ public class PathFinder {
 	public String toString() {
 		String output = "";
 		
-		for (UserData user : table) {
+		for (BloomFilteredUserData user : table) {
 			output += "User: "+user.getUserId().toString()+"\n";
 			for (int i=0; i<UserData.MAX_DEPTH; i++) {
-				Polynomial level = user.getPolynomial(i);
+				BloomFilteredPolynomial level = user.getPolynomial(i);
 				output +="Level "+i+": "+level.toString()+"\n";
 			}
 			
