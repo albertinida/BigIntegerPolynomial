@@ -46,33 +46,35 @@ public class PathFinder {
 		
 /**/	long insertTime = System.currentTimeMillis();
 		boolean[] nextLevelUpdated = new boolean[table.size()+1];
-/**/	int evaluations = 0;		
+/**/	int eval = 0, conv = 0;		
 		for (int i=0; i<table.size(); i++) {
+			eval ++;
 			if (table.get(i).getPolynomial(0).evaluate(ud.getUserId()).equals(BigInteger.ZERO)) {
-				evaluations++;
+				conv++;
 				table.get(i).getPolynomial(1).threadedConvolution(ud.getPolynomial(0), executor);
 				ud.getPolynomial(1).threadedConvolution(table.get(i).getPolynomial(0), executor);
 				nextLevelUpdated[i] = true;
 			}
 		}
 /**/	System.out.println("aggiornamento del livello 1 :"+(System.currentTimeMillis()-insertTime)+"ms");
-/**/	System.out.println("\t"+(evaluations*2)+" convoluzioni");
-		table.add(ud);
+/**/	System.out.println("\t"+table.size()+" cicli");
+/**/	System.out.println("\t"+eval+" valutazioni");
+/**/	System.out.println("\t"+conv*2+" convoluzioni");		table.add(ud);
 		
 		int maxCascade = Math.min(UserData.MAX_DEPTH, table.size());
 		for (int level=1; level<maxCascade-1; level++) {
 /**/		insertTime = System.currentTimeMillis();
 			boolean[] thisLevelUpdated = nextLevelUpdated.clone();
-/**/		evaluations = 0;
+/**/		eval = 0; conv = 0;
 			for (int i=0; i<table.size()-1; i++) {
 				if (thisLevelUpdated[i] == true) {
 					for (int j=i+1; j<table.size(); j++) {
 						
 						UserData user1 = table.get(i);
 						UserData user2 = table.get(j);
-						
+/**/					eval++;
 						if (user1.getPolynomial(level).evaluate(user2.getUserId()).equals(BigInteger.ZERO)) {
-							evaluations++;
+/**/						conv++;
 							user1.getPolynomial(level+1).threadedConvolution(user2.getPolynomial(level), executor);
 							user2.getPolynomial(level+1).threadedConvolution(user1.getPolynomial(level), executor);
 							
@@ -83,7 +85,9 @@ public class PathFinder {
 				}
 			}
 /**/		System.out.println("aggiornamento del livello "+(level+1)+": "+(System.currentTimeMillis()-insertTime)+"ms");
-/**/		System.out.println("\t"+(evaluations*2)+" convoluzioni");
+/**/		System.out.println("\t"+Math.pow(table.size(), level)+" cicli");
+/**/		System.out.println("\t"+eval+" valutazioni");
+/**/		System.out.println("\t"+conv*2+" convoluzioni");		
 		}
 	}
 	

@@ -35,15 +35,23 @@ public class BloomFilteredPolynomial {
 		for (int i=0; i<length; i++) 
 			coefficients.add(new BigInteger("0"));
 
-		this.bloomFilter = new BloomFilter<BigInteger>(0,001, 1000);
+		this.bloomFilter = new BloomFilter<BigInteger>(0.001, 1000);
 
+	}
+
+	public BloomFilteredPolynomial(List<BigInteger> coefficients) throws Exception {
+		if (coefficients.size() > 2) throw new Exception();
+		this.coefficients = new LinkedList<BigInteger>(coefficients);
+
+		this.bloomFilter = new BloomFilter<BigInteger>(0.001, 1000);
+		this.bloomFilter.add(coefficients.get(1).abs());
 	}
 	
 	public BloomFilteredPolynomial(BigInteger monomial) {
 		this.coefficients = new LinkedList<BigInteger>();
 		this.coefficients.add(monomial);
 		
-		this.bloomFilter = new BloomFilter<BigInteger>(0,001, 1000);
+		this.bloomFilter = new BloomFilter<BigInteger>(0.001, 1000);
 		this.bloomFilter.add(monomial);
 	}
 	

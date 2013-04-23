@@ -442,7 +442,7 @@ public class BloomFilter<E> implements Serializable {
     }
     
     public void intersect(BloomFilter bf) throws UnsupportedIntersectionOperation {
-    	if (this.bitset.length() != bf.bitset.length()) throw new UnsupportedIntersectionOperation();
+    	if (this.bitSetSize != bf.bitSetSize) throw new UnsupportedIntersectionOperation();
     	for (int i=0; i<this.bitset.length(); i++)
     		this.bitset.set(i, (this.bitset.get(i) && this.bitset.get(i)));
     }

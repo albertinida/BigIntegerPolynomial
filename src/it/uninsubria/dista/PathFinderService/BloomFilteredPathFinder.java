@@ -47,9 +47,12 @@ public class BloomFilteredPathFinder {
 		
 /**/	long insertTime = System.currentTimeMillis();
 		boolean[] nextLevelUpdated = new boolean[table.size()+1];
+		int conv = 0, eval = 0;
 		for (int i=0; i<table.size(); i++) {
 			if (table.get(i).getPolynomial(0).bloomFilterContains(ud.getUserId())) {
+				eval++;
 				if (table.get(i).getPolynomial(0).evaluate(ud.getUserId()).equals(BigInteger.ZERO)) {
+					conv++;
 					table.get(i).getPolynomial(1).threadedConvolution(ud.getPolynomial(0), executor);
 					ud.getPolynomial(1).threadedConvolution(table.get(i).getPolynomial(0), executor);
 					nextLevelUpdated[i] = true;
@@ -57,11 +60,15 @@ public class BloomFilteredPathFinder {
 			}
 		}
 /**/	System.out.println("aggiornamento del livello 1 :"+(System.currentTimeMillis()-insertTime)+"ms");
+/**/	System.out.println("\t"+table.size()+" cicli");
+/**/	System.out.println("\t"+eval+" valutazioni");
+/**/	System.out.println("\t"+conv*2+" convoluzioni");
 		table.add(ud);
 		
 		int maxCascade = Math.min(UserData.MAX_DEPTH, table.size());
 		for (int level=1; level<maxCascade-1; level++) {
 /**/		insertTime = System.currentTimeMillis();
+/**/		eval = 0; conv = 0;
 			boolean[] thisLevelUpdated = nextLevelUpdated.clone();
 			
 			for (int i=0; i<table.size()-1; i++) {
@@ -70,18 +77,24 @@ public class BloomFilteredPathFinder {
 						
 						BloomFilteredUserData user1 = table.get(i);
 						BloomFilteredUserData user2 = table.get(j);
-						
-						if (user1.getPolynomial(level).evaluate(user2.getUserId()).equals(BigInteger.ZERO)) {
-							user1.getPolynomial(level+1).threadedConvolution(user2.getPolynomial(level), executor);
-							user2.getPolynomial(level+1).threadedConvolution(user1.getPolynomial(level), executor);
-							
-							nextLevelUpdated[i] = true;
-							nextLevelUpdated[j] = true;
-						} 
+						if(user1.getPolynomial(level).bloomFilterContains(user2.getUserId())) {
+/**/						eval++;
+							if (user1.getPolynomial(level).evaluate(user2.getUserId()).equals(BigInteger.ZERO)) {
+								conv++;
+								user1.getPolynomial(level+1).threadedConvolution(user2.getPolynomial(level), executor);
+								user2.getPolynomial(level+1).threadedConvolution(user1.getPolynomial(level), executor);
+								
+								nextLevelUpdated[i] = true;
+								nextLevelUpdated[j] = true;
+							} 
+						}
 					}
 				}
 			}
-			System.out.println("aggiornamento del livello "+(level+1)+": "+(System.currentTimeMillis()-insertTime)+"ms");
+/**/		System.out.println("aggiornamento del livello "+(level+1)+": "+(System.currentTimeMillis()-insertTime)+"ms");
+/**/		System.out.println("\t"+Math.pow(table.size(), level)+" cicli");
+/**/		System.out.println("\t"+eval+" valutazioni");
+/**/		System.out.println("\t"+conv*2+" convoluzioni");		
 		}
 	}
 	
