@@ -6,7 +6,7 @@
 	}
 
 	$DATASET = fopen(getcwd()."/".$argv[1].".edges", "r") or die("bad dataset file selected");
-	$TARGET = fopen(getcwd()."/".$argv[1].".adjacency", "w+") or die("could not open new dataset");
+	$TARGET = fopen(getcwd()."/".$argv[1].".adjacencyCount", "w+") or die("could not open new dataset");
 
 	$MATRIX;
 	$MAX_VALUE = 0;
@@ -27,12 +27,14 @@
 
 	for ($i=0; $i<=$MAX_VALUE; $i++) {
 		
-			fwrite($TARGET, $i."    ");	
+			fwrite($TARGET, $i."@");	
+			$count = 0;
 			for ($j=0; $j<=$MAX_VALUE; $j++) {
 				if ( isset($MATRIX[$i][$j]) && ($MATRIX[$i][$j] == 1)) {			
-					fwrite($TARGET, $j."  ");
+					$count++;
 				}		
 			}
+			fwrite($TARGET, $count);
 			fwrite($TARGET, "\n");
 	}
 	
