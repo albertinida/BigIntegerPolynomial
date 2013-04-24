@@ -48,6 +48,9 @@ public class testPFS {
 			
 			BufferedReader br = new BufferedReader(new FileReader(args[0]));
 			String line;
+			
+			long startExecTest = System.currentTimeMillis();
+			
 			while ((line = br.readLine()) != null) {
 
 				if (line.indexOf('#') > -1) {
@@ -66,8 +69,11 @@ public class testPFS {
 				}
 			}
 			
+			System.out.println("\n\nTempo totale per la lettura del dataset :"+(System.currentTimeMillis()-startExecTest));
+			output.write("\n\nTempo totale per la lettura del dataset :"+(System.currentTimeMillis()-startExecTest));
+			output.flush();
 			output.close();
-			System.out.print(PFS);
+//			System.out.print(PFS);
 			System.exit(0);
 			
 		} catch (Exception e) {

@@ -35,11 +35,11 @@ public class PathFinder {
 	
 	public void addUserData(UserData ud) throws InterruptedException, ExecutionException, IOException {
 		
-/**/	System.out.println();
-/**/	System.out.println("Inserimento dell'utente "+ud.getUserId()+". Inserimento numero "+table.size());
+//	System.out.println();
+//	System.out.println("Inserimento dell'utente "+ud.getUserId()+". Inserimento numero "+table.size());
 			
-		testPFS.output.write("Inserimento dell'utente "+ud.getUserId()+". Inserimento numero "+table.size()+"\n");
-		testPFS.output.flush();
+//		testPFS.output.write("Inserimento dell'utente "+ud.getUserId()+". Inserimento numero "+table.size()+"\n");
+//		testPFS.output.flush();
 		
 		try {
 			for (int i=2; i<=UserData.MAX_DEPTH; i++)
@@ -51,8 +51,8 @@ public class PathFinder {
 			System.exit(1);
 		}
 		
-/**/	long insertTime = System.currentTimeMillis();
-/**/	long totalTime = System.currentTimeMillis();
+		long insertTime = System.currentTimeMillis();
+		long totalTime = System.currentTimeMillis();
 		boolean[] nextLevelUpdated = new boolean[table.size()+1];
 		Arrays.fill(nextLevelUpdated, false);
 
@@ -61,7 +61,7 @@ public class PathFinder {
 		 * if the evaluation is successful, the UserData.level2 is updated, and the 
 		 * same is done with level2 of curren table line
 		 */
-/**/	int eval = 0, conv = 0, cycle = 0;		
+		int eval = 0, conv = 0, cycle = 0;		
 		for (int i=0; i<table.size(); i++) {
 			eval ++;
 			if (table.get(i).getPolynomial(1).evaluate(ud.getUserId()).equals(BigInteger.ZERO)) {
@@ -74,21 +74,21 @@ public class PathFinder {
 				nextLevelUpdated[i] = true;
 			}
 		}
-/**/	System.out.print("aggiornamento del livello 1 :"+(System.currentTimeMillis()-insertTime)+"ms");
-/**/	System.out.println("\tcicli: "+table.size()+", valutazioni: "+eval+" moltiplicazioni: "+conv);
+//	System.out.print("aggiornamento del livello 1 :"+(System.currentTimeMillis()-insertTime)+"ms");
+//	System.out.println("\tcicli: "+table.size()+", valutazioni: "+eval+" moltiplicazioni: "+conv);
 
-		testPFS.output.write("aggiornamento del livello 1 :"+(System.currentTimeMillis()-insertTime)+"ms");
-		testPFS.output.write("\tcicli: "+table.size()+", valutazioni: "+eval+" moltiplicazioni: "+conv+"\n");
-		testPFS.output.flush();
+//		testPFS.output.write("aggiornamento del livello 1: "+(System.currentTimeMillis()-insertTime)+"ms");
+//		testPFS.output.write("\tvalutazioni: "+eval+" moltiplicazioni: "+conv+"\n");
+//		testPFS.output.flush();
 
 		table.add(ud);
 		
 		int maxCascade = Math.min(UserData.MAX_DEPTH, table.size());
 		for (int level=2; level<=maxCascade; level++) {
-/**/		insertTime = System.currentTimeMillis();
+			insertTime = System.currentTimeMillis();
 			boolean[] thisLevelUpdated = nextLevelUpdated.clone();
 			Arrays.fill(nextLevelUpdated, false);
-/**/		cycle = 0; eval = 0; conv = 0;
+			eval = 0; conv = 0;
 			/**
 			 * for every line in the table, i evaluate with the following lines' userId,
 			 * only if the current line has been updated
@@ -96,12 +96,11 @@ public class PathFinder {
 			for (int i=0; i<table.size()-1; i++) {
 				if (thisLevelUpdated[i] == true) {
 					for (int j=i+1; j<table.size(); j++) {
-						cycle++;
 						UserData user1 = table.get(i);
 						UserData user2 = table.get(j);
-/**/					eval++;
+						eval++;
 						if (user1.getPolynomial(level).evaluate(user2.getUserId()).equals(BigInteger.ZERO)) {
-/**/						conv+=2;
+							conv+=2;
 							user1.getPolynomial(level+1).threadedConvolution(user2.getPolynomial(level), executor);
 							user2.getPolynomial(level+1).threadedConvolution(user1.getPolynomial(level), executor);
 							
@@ -111,16 +110,16 @@ public class PathFinder {
 					}
 				} 
 			}
-/**/		System.out.print("aggiornamento del livello "+level+": "+(System.currentTimeMillis()-insertTime)+"ms");
-/**/		System.out.println("\tcicli: "+cycle+", valutazioni: "+eval+" moltiplicazioni: "+conv);
+//		System.out.print("aggiornamento del livello "+level+": "+(System.currentTimeMillis()-insertTime)+"ms");
+//		System.out.println("\tvalutazioni: "+eval+" moltiplicazioni: "+conv);
 
-			testPFS.output.write("aggiornamento del livello "+level+": "+(System.currentTimeMillis()-insertTime)+"ms");
-			testPFS.output.write("\tcicli: "+cycle+", valutazioni: "+eval+" moltiplicazioni: "+conv+"\n");
-			testPFS.output.flush();
+//			testPFS.output.write("aggiornamento del livello "+level+": "+(System.currentTimeMillis()-insertTime)+"ms");
+//			testPFS.output.write("\tvalutazioni: "+eval+" moltiplicazioni: "+conv+"\n");
+//			testPFS.output.flush();
 		}
-/**/	System.out.println("\ttempo richiesto dall'aggiornamento: "+(System.currentTimeMillis()-totalTime)+"ms");
-		testPFS.output.write("\ttempo richiesto dall'aggiornamento: "+(System.currentTimeMillis()-totalTime)+"ms");
-		testPFS.output.flush();
+//	System.out.println("\ttempo richiesto dall'aggiornamento: "+(System.currentTimeMillis()-totalTime)+"ms\n");
+//		testPFS.output.write("\ttempo richiesto dall'aggiornamento: "+(System.currentTimeMillis()-totalTime)+"ms\n");
+//		testPFS.output.flush();
 	}
 	
 	@Override

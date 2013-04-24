@@ -13,7 +13,7 @@ import com.mysql.jdbc.Driver;
 
 public class UserData {
 
-	public final static int MAX_DEPTH = 7;
+	public final static int MAX_DEPTH = 4;
 
 	private BigInteger userId;
 	
