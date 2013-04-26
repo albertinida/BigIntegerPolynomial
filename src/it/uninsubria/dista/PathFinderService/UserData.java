@@ -1,6 +1,7 @@
 package it.uninsubria.dista.PathFinderService;
 
 import it.uninsubria.dista.PathFinderService.Polynomials.Polynomial;
+import it.uninsubria.dista.PathFinderService.Test.Build;
 
 import java.math.BigInteger;
 import java.sql.Connection;
@@ -16,6 +17,10 @@ public class UserData {
 	public final static int MAX_DEPTH = 4;
 
 	private BigInteger userId;
+	
+	public UserData(BigInteger userId) {
+		this.userId = userId;
+	}
 	
 	public UserData(BigInteger userId, Polynomial directContacts) {
 		
@@ -42,7 +47,7 @@ public class UserData {
 			} catch (Exception e) {
 				try {
 					System.out.println("Occurred Exception "+e.getClass());
-					testPFS.output.write("Occurred Exception "+e.getClass()+"\n");
+					Build.output.write("Occurred Exception "+e.getClass()+"\n");
 					Thread.sleep(500);
 				} catch (Exception sleep) {
 				}
@@ -75,7 +80,7 @@ public class UserData {
 			} catch (Exception e) {
 				try {
 					System.out.println("Occurred Exception "+e.getClass());
-					testPFS.output.write("Occurred Exception "+e.getClass()+"\n");
+					Build.output.write("Occurred Exception "+e.getClass()+"\n");
 					Thread.sleep(500);
 				} catch (Exception sleep) {
 				}
@@ -100,7 +105,7 @@ public class UserData {
 			} catch (Exception e) {
 				try {
 					System.out.println("Occurred Exception "+e.getClass());
-					testPFS.output.write("Occurred Exception "+e.getClass()+"\n");
+					Build.output.write("Occurred Exception "+e.getClass()+"\n");
 					Thread.sleep(500);
 				} catch (Exception sleep) {
 				}

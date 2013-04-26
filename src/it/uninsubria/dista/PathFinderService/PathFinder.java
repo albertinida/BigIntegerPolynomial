@@ -2,6 +2,7 @@ package it.uninsubria.dista.PathFinderService;
 
 import it.uninsubria.dista.PathFinderService.Exceptions.MalformedPolynomialException;
 import it.uninsubria.dista.PathFinderService.Polynomials.Polynomial;
+import it.uninsubria.dista.PathFinderService.Test.Build;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -35,11 +36,7 @@ public class PathFinder {
 	
 	public void addUserData(UserData ud) throws InterruptedException, ExecutionException, IOException {
 		
-//	System.out.println();
-//	System.out.println("Inserimento dell'utente "+ud.getUserId()+". Inserimento numero "+table.size());
-			
-//		testPFS.output.write("Inserimento dell'utente "+ud.getUserId()+". Inserimento numero "+table.size()+"\n");
-//		testPFS.output.flush();
+		Build.output.write("Inserimento dell'utente "+ud.getUserId()+". Inserimento numero "+table.size()+"\n");
 		
 		try {
 			for (int i=2; i<=UserData.MAX_DEPTH; i++)
@@ -69,17 +66,11 @@ public class PathFinder {
 				
 				table.get(i).setPolynomial(2, table.get(i).getPolynomial(2).threadedConvolution(ud.getPolynomial(1), executor));
 				ud.setPolynomial(2, ud.getPolynomial(2).threadedConvolution(table.get(i).getPolynomial(1), executor));
-				//table.get(i).getPolynomial(2).threadedConvolution(ud.getPolynomial(1), executor);
-				//ud.getPolynomial(2).threadedConvolution(table.get(i).getPolynomial(1), executor);
 				nextLevelUpdated[i] = true;
 			}
 		}
-//	System.out.print("aggiornamento del livello 1 :"+(System.currentTimeMillis()-insertTime)+"ms");
-//	System.out.println("\tcicli: "+table.size()+", valutazioni: "+eval+" moltiplicazioni: "+conv);
 
-//		testPFS.output.write("aggiornamento del livello 1: "+(System.currentTimeMillis()-insertTime)+"ms");
-//		testPFS.output.write("\tvalutazioni: "+eval+" moltiplicazioni: "+conv+"\n");
-//		testPFS.output.flush();
+		Build.output.write("aggiornamento del livello 1: "+(System.currentTimeMillis()-insertTime)+"ms\tvalutazioni: "+eval+" moltiplicazioni: "+conv+"\n");
 
 		table.add(ud);
 		
@@ -110,16 +101,11 @@ public class PathFinder {
 					}
 				} 
 			}
-//		System.out.print("aggiornamento del livello "+level+": "+(System.currentTimeMillis()-insertTime)+"ms");
-//		System.out.println("\tvalutazioni: "+eval+" moltiplicazioni: "+conv);
-
-//			testPFS.output.write("aggiornamento del livello "+level+": "+(System.currentTimeMillis()-insertTime)+"ms");
-//			testPFS.output.write("\tvalutazioni: "+eval+" moltiplicazioni: "+conv+"\n");
-//			testPFS.output.flush();
+			Build.output.write("aggiornamento del livello "+level+": "+(System.currentTimeMillis()-insertTime)+"ms\tvalutazioni: "+eval+" moltiplicazioni: "+conv+"\n");
 		}
 //	System.out.println("\ttempo richiesto dall'aggiornamento: "+(System.currentTimeMillis()-totalTime)+"ms\n");
-//		testPFS.output.write("\ttempo richiesto dall'aggiornamento: "+(System.currentTimeMillis()-totalTime)+"ms\n");
-//		testPFS.output.flush();
+		Build.output.write("\ttempo richiesto dall'aggiornamento: "+(System.currentTimeMillis()-totalTime)+"ms\n");
+		Build.output.flush();
 	}
 	
 	@Override

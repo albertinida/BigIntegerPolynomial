@@ -1,4 +1,6 @@
-package it.uninsubria.dista.PathFinderService;
+package it.uninsubria.dista.PathFinderService.Test;
+import it.uninsubria.dista.PathFinderService.PathFinder;
+import it.uninsubria.dista.PathFinderService.UserData;
 import it.uninsubria.dista.PathFinderService.Polynomials.Polynomial;
 
 import java.io.BufferedReader;
@@ -16,7 +18,7 @@ import java.sql.Statement;
 import java.util.LinkedList;
 
 
-public class testPFS {
+public class Build {
 
 	public static BufferedWriter output;
 	

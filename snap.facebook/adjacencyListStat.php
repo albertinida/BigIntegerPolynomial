@@ -8,7 +8,7 @@
 	for ($file=1; $file<$argc; $file++) {
 
 		$DATASET = fopen(getcwd()."/".$argv[$file].".edges", "r") or die("bad dataset file selected");
-		$TARGET = fopen(getcwd()."/".$argv[$file].".adjacency", "w+") or die("could not open new dataset");
+		$TARGET = fopen(getcwd()."/".$argv[$file].".adjacencyStat", "w+") or die("could not open new dataset");
 
 		$MATRIX;
 		$MAX_VALUE = 0;
@@ -27,18 +27,16 @@
 			fclose($DATASET);
 		}
 
+		$contacts = Array();
 		for ($i=0; $i<=$MAX_VALUE; $i++) {
-			$output = "";
 			if ( (gettype($MATRIX[$i]) != "NULL") && (in_array(1, $MATRIX[$i])) ) {
-				$output .= $i."@";
-				for ($j=0; $j<=$MAX_VALUE; $j++) {
-					if ( isset($MATRIX[$i][$j]) && ($MATRIX[$i][$j] == 1)) {			
-						$output .= $j."#";
-					}		
-				}
+				$contacts[count($contacts)] = array_sum($MATRIX[$i]);
 			}
-			if ($output != "") fwrite($TARGET, $output."\n");
 		}
+
+		$average = array_sum($contacts) / count($contacts);
+
+		fwrite($TARGET, "numero utenti: ".count($contacts)."\nmedia contatti: $average");
 	
 		fclose($TARGET);
 	}
