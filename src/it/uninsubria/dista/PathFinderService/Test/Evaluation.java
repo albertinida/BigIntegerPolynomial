@@ -1,4 +1,5 @@
 package it.uninsubria.dista.PathFinderService.Test;
+import it.uninsubria.dista.PathFinderService.PathFinder;
 import it.uninsubria.dista.PathFinderService.UserData;
 import it.uninsubria.dista.PathFinderService.Polynomials.Polynomial;
 
@@ -28,7 +29,7 @@ public class Evaluation {
 			
 			System.out.println("Test di valutazione per il PFS memorizzato nella tabella polynomials");
 			System.out.println("Inserisci la valutazione, in una riga, nel formato 'eval:<requestorId>,<ownerId>,<depth>'");
-			
+			System.out.println();
 			System.out.println("Inserisci 'exit' per uscire");
 			System.out.print("PFS# ");
 			
@@ -57,9 +58,7 @@ public class Evaluation {
 						
 						System.out.println("Tempo richiesto: "+(System.currentTimeMillis()-start)+"ms");
 					}
-				}
-				
-				else if (line.matches(".*exit.*")) {
+				} else if (line.matches(".*exit.*")) {
 					System.out.println("Program exit");
 					System.exit(0);
 				} 

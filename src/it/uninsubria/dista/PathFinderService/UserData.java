@@ -14,7 +14,7 @@ import com.mysql.jdbc.Driver;
 
 public class UserData {
 
-	public final static int MAX_DEPTH = 4;
+	public final static int MAX_DEPTH = 7;
 
 	private BigInteger userId;
 	
@@ -111,5 +111,34 @@ public class UserData {
 				}
 			}
 		}
+	}
+	
+	public boolean exists() {
+		while (true) {
+			try {
+				
+				Class.forName("com.mysql.jdbc.Driver").newInstance();
+				Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/PFS","root","root");
+				Statement state = connection.createStatement();
+
+				ResultSet rs = state.executeQuery("SELECT COUNT(uid) FROM polynomials WHERE uid="+this.userId);
+				
+				while (rs.next()) {
+					int result = rs.getInt("count(uid)");
+					if (result == 0) 
+						return false;
+					else
+						return true;
+				}
+				
+			} catch (Exception e) {
+				try {
+					System.out.println("Occurred Exception "+e.getClass());
+					Build.output.write("Occurred Exception "+e.getClass()+"\n");
+					Thread.sleep(500);
+				} catch (Exception sleep) {
+				}
+			}
+		} 
 	}
 }
