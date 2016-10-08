@@ -12,16 +12,32 @@ import java.sql.Statement;
 
 import com.mysql.jdbc.Driver;
 
+/**
+ * Rappresenta un utente della DSN, attraverso il suo uid e la sua vista locale del grafo anonimizzata
+ */
 public class UserData {
 
+	/**
+	 * Parametro che indica la massima profondità delle viste locali
+	 */
 	public final static int MAX_DEPTH = 7;
 
+	/**
+	 * uid dell'utente singolo
+	 */
 	private BigInteger userId;
 	
 	public UserData(BigInteger userId) {
 		this.userId = userId;
 	}
 	
+	/**
+	 * Costrutture di istanza; attraverso l'uid e la vista anonimizzata dei contatti diretti salva le 
+	 * informazioni su DB ed inizializza a 1 le viste più profonde dei polinomi.
+	 * 
+	 * @param userId
+	 * @param directContacts
+	 */
 	public UserData(BigInteger userId, Polynomial directContacts) {
 		
 		boolean stored = false;

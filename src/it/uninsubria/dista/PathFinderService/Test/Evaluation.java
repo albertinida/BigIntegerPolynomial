@@ -1,5 +1,5 @@
 package it.uninsubria.dista.PathFinderService.Test;
-import it.uninsubria.dista.PathFinderService.PathFinder;
+import it.uninsubria.dista.PathFinderService.PathFinderService;
 import it.uninsubria.dista.PathFinderService.UserData;
 import it.uninsubria.dista.PathFinderService.Polynomials.Polynomial;
 

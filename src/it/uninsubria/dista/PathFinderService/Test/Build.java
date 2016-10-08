@@ -1,5 +1,5 @@
 package it.uninsubria.dista.PathFinderService.Test;
-import it.uninsubria.dista.PathFinderService.PathFinder;
+import it.uninsubria.dista.PathFinderService.PathFinderService;
 import it.uninsubria.dista.PathFinderService.UserData;
 import it.uninsubria.dista.PathFinderService.Polynomials.Polynomial;
 
@@ -26,7 +26,7 @@ public class Build {
 	
 	public static void main(String[] args) {
 
-		PathFinder PFS = null;
+		PathFinderService PFS = null;
 		try {
 
 			output = new BufferedWriter(new FileWriter(new File(args[0]+".result")), 32768);
@@ -53,7 +53,7 @@ public class Build {
 				state.executeUpdate(create);
 				connection.close();
 				
-				PFS = PathFinder.getInstance();
+				PFS = PathFinderService.getInstance();
 	
 				LinkedList<BigInteger> coeff = new LinkedList<BigInteger>();
 				coeff.add(new BigInteger("1"));
